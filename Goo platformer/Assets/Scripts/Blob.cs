@@ -11,6 +11,7 @@ public class Blob : MonoBehaviour
     [SerializeField] private int connectEvery = 2;
     [SerializeField] private int radius = 2;
     [SerializeField] private float springForce = 1;
+    [SerializeField] private float volumeSpringForce = 1;
 
     new private Rigidbody2D rigidbody;
     private Rigidbody2D[] points;
@@ -45,8 +46,8 @@ public class Blob : MonoBehaviour
 
     void FixedUpdate()
     {
-        // ApplyCentreForces();
-        // ApplyNeighbourForces();
+        ApplyCentreForces();
+        ApplyNeighbourForces();
         ApplyVolumeForces();
 
     }
@@ -96,7 +97,7 @@ public class Blob : MonoBehaviour
         // apply a force to vertex p0, perpendicular to base P2-P1
         Vector3 b = rb2.transform.position - rb1.transform.position;
         Vector3 dir = Quaternion.AngleAxis(90, Vector3.forward) * b;
-        rb0.AddForce(-dir * dArea * springForce);
+        rb0.AddForce(dir * dArea * volumeSpringForce);
     }
 
 
