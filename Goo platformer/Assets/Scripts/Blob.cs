@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class Blob : MonoBehaviour
@@ -13,6 +14,15 @@ public class Blob : MonoBehaviour
 
     new private Rigidbody2D rigidbody;
     private Rigidbody2D[] points;
+
+    public int Size {
+        get { return nPoints; }
+    }
+
+    public Vector3 this[int i]
+    {
+        get { return points[i].transform.position; }
+    }
 
     void Start()
     {
@@ -35,12 +45,23 @@ public class Blob : MonoBehaviour
 
     void FixedUpdate()
     {
+        ApplyCentreForces();
+        ApplyNeighbourForces();
+        // ApplyVolumeForces();
+
+    }
+
+    private void ApplyCentreForces()
+    {
         // connection to centre point
         for (int i = 0; i < points.Length; i++)
         {
             ApplySpringForce(rigidbody, points[i], radius);
         }        
+    }
 
+    private void ApplyNeighbourForces()
+    {
         // connection to neighbours
         for (int n = 1; n <= connectEvery; n++) 
         {
@@ -54,6 +75,25 @@ public class Blob : MonoBehaviour
 
     }
 
+    private void ApplyVolumeForces()
+    {
+        // calculate twice the area to avoid factor of 1/2
+        float aRest = radius * radius * Mathf.Sin(2 * Mathf.PI / nPoints);
+        for (int i = 0; i < points.Length; i++)
+        {
+            float a = AreaOfTriangle(i);
+        }
+    }
+
+    public float AreaOfTriangle(int i)
+    {
+        int j = (i+1) % nPoints;
+        Vector3 vi = points[i].transform.position - transform.position;
+        Vector3 vj = points[j].transform.position - transform.position;
+        Vector3 cross = Vector3.Cross(vi, vj);
+        return cross.z;
+    }
+
     private void ApplySpringForce(Rigidbody2D rb1, Rigidbody2D rb2, float dRest) 
     {
         Vector3 v = rb1.transform.position - rb2.transform.position;
@@ -62,6 +102,7 @@ public class Blob : MonoBehaviour
         rb1.AddForce(-v * springForce);
         rb2.AddForce(v * springForce);
     }
+
 
     void OnDrawGizmos() 
     {
@@ -100,6 +141,32 @@ public class Blob : MonoBehaviour
             }        
         }
 
+
+    }
+}
+
+[CustomEditor(typeof(Blob))]
+public class BlobEditor : Editor
+{
+    public void OnSceneGUI()
+    {
+        if (!Application.IsPlaying(target))
+        {
+            return;
+        }
+        Blob blob = target as Blob;
+
+        Vector3[] triangle = new Vector3[3];
+        triangle[0] = blob.transform.position;
+
+        for (int i = 0; i < blob.Size; i++) 
+        {
+            int j = (i + 1) % blob.Size;
+            triangle[1] = blob[i];
+            triangle[2] = blob[j];
+            Handles.color = (blob.AreaOfTriangle(i) > 0 ? Color.green : Color.red);
+            Handles.DrawAAConvexPolygon(triangle);
+        }
 
     }
 }
