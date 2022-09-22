@@ -45,9 +45,9 @@ public class Blob : MonoBehaviour
 
     void FixedUpdate()
     {
-        ApplyCentreForces();
-        ApplyNeighbourForces();
-        // ApplyVolumeForces();
+        // ApplyCentreForces();
+        // ApplyNeighbourForces();
+        ApplyVolumeForces();
 
     }
 
@@ -82,8 +82,23 @@ public class Blob : MonoBehaviour
         for (int i = 0; i < points.Length; i++)
         {
             float a = AreaOfTriangle(i);
+            float delta = aRest - a;
+            
+            int j = (i+1) % nPoints;
+            ApplyVolumeForce(rigidbody, points[i], points[j], delta);
+            ApplyVolumeForce(points[i], points[j], rigidbody, delta);
+            ApplyVolumeForce(points[j], rigidbody, points[i], delta);
         }
     }
+
+    private void ApplyVolumeForce(Rigidbody2D rb0, Rigidbody2D rb1, Rigidbody2D rb2, float dArea)
+    {
+        // apply a force to vertex p0, perpendicular to base P2-P1
+        Vector3 b = rb2.transform.position - rb1.transform.position;
+        Vector3 dir = Quaternion.AngleAxis(90, Vector3.forward) * b;
+        rb0.AddForce(-dir * dArea * springForce);
+    }
+
 
     public float AreaOfTriangle(int i)
     {

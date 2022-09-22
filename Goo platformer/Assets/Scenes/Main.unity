@@ -1094,7 +1094,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4750942835387835052, guid: b1e8902f80d2e4961909fb27af4da014, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 4750942835387835052, guid: b1e8902f80d2e4961909fb27af4da014, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1156,7 +1156,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pointPrefab: {fileID: 4750942835387835053, guid: b1e8902f80d2e4961909fb27af4da014, type: 3}
-  nPoints: 10
-  connectEvery: 2
+  nPoints: 4
+  connectEvery: 3
   radius: 2
-  pointRadius: 0.5
+  springForce: 30
