@@ -13,6 +13,7 @@ public class Blob : MonoBehaviour
     [SerializeField] private float centreSpringForce = 10;
     [SerializeField] private float surfaceSpringForce = 50;
     [SerializeField] private float volumeSpringForce = 50;
+    [SerializeField] private float playerForce = 10;
 
     new private Rigidbody2D rigidbody;
     private Rigidbody2D[] points;
@@ -47,10 +48,20 @@ public class Blob : MonoBehaviour
 
     void FixedUpdate()
     {
+        ApplyPlayerForces();
         ApplyCentreForces();
         ApplySurfaceForces();
         ApplyVolumeForces();
 
+    }
+
+    private void ApplyPlayerForces()
+    {
+        Vector3 move = Vector3.zero;
+        move.x = Input.GetAxis("Horizontal");
+        move.y = Input.GetAxis("Vertical");
+
+        rigidbody.AddForce(move * playerForce);
     }
 
     private void ApplyCentreForces()
