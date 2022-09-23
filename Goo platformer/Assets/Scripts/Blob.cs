@@ -188,13 +188,16 @@ public class BlobEditor : Editor
         Vector3[] triangle = new Vector3[3];
         triangle[0] = blob.transform.position;
 
+        Handles.color = Color.red;
         for (int i = 0; i < blob.Size; i++) 
         {
-            int j = (i + 1) % blob.Size;
-            triangle[1] = blob[i];
-            triangle[2] = blob[j];
-            Handles.color = (blob.AreaOfTriangle(i) > 0 ? Color.green : Color.red);
-            Handles.DrawAAConvexPolygon(triangle);
+            if (blob.AreaOfTriangle(i) < 0)
+            {
+                int j = (i + 1) % blob.Size;
+                triangle[1] = blob[i];
+                triangle[2] = blob[j];
+                Handles.DrawAAConvexPolygon(triangle);
+            }
         }
 
     }
