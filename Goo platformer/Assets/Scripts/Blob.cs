@@ -7,11 +7,12 @@ using UnityEditor;
 public class Blob : MonoBehaviour
 {
     [SerializeField] private Rigidbody2D pointPrefab;
-    [SerializeField] private int nPoints = 10;
+    [SerializeField] private int nPoints = 40;
     [SerializeField] private int connectEvery = 2;
     [SerializeField] private int radius = 2;
-    [SerializeField] private float springForce = 1;
-    [SerializeField] private float volumeSpringForce = 1;
+    [SerializeField] private float centreSpringForce = 10;
+    [SerializeField] private float surfaceSpringForce = 50;
+    [SerializeField] private float volumeSpringForce = 50;
 
     new private Rigidbody2D rigidbody;
     private Rigidbody2D[] points;
@@ -47,7 +48,7 @@ public class Blob : MonoBehaviour
     void FixedUpdate()
     {
         ApplyCentreForces();
-        ApplyNeighbourForces();
+        ApplySurfaceForces();
         ApplyVolumeForces();
 
     }
@@ -57,11 +58,11 @@ public class Blob : MonoBehaviour
         // connection to centre point
         for (int i = 0; i < points.Length; i++)
         {
-            ApplySpringForce(rigidbody, points[i], radius);
+            ApplySpringForce(rigidbody, points[i], radius, centreSpringForce);
         }        
     }
 
-    private void ApplyNeighbourForces()
+    private void ApplySurfaceForces()
     {
         // connection to neighbours
         for (int n = 1; n <= connectEvery; n++) 
@@ -70,11 +71,21 @@ public class Blob : MonoBehaviour
             for (int i = 0; i < points.Length; i++)
             {
                 int j = (i + n) % nPoints;
-                ApplySpringForce(points[i], points[j], dRest);
+                ApplySpringForce(points[i], points[j], dRest, surfaceSpringForce);
             }        
         }
 
     }
+
+    private void ApplySpringForce(Rigidbody2D rb1, Rigidbody2D rb2, float dRest, float spring) 
+    {
+        Vector3 v = rb1.transform.position - rb2.transform.position;
+        float d = v.magnitude - dRest;
+        v = v.normalized * d;
+        rb1.AddForce(-v * spring);
+        rb2.AddForce(v * spring);
+    }
+
 
     private void ApplyVolumeForces()
     {
@@ -108,15 +119,6 @@ public class Blob : MonoBehaviour
         Vector3 vj = points[j].transform.position - transform.position;
         Vector3 cross = Vector3.Cross(vi, vj);
         return cross.z;
-    }
-
-    private void ApplySpringForce(Rigidbody2D rb1, Rigidbody2D rb2, float dRest) 
-    {
-        Vector3 v = rb1.transform.position - rb2.transform.position;
-        float d = v.magnitude - dRest;
-        v = v.normalized * d;
-        rb1.AddForce(-v * springForce);
-        rb2.AddForce(v * springForce);
     }
 
 
